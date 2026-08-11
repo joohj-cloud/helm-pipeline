@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: nginx
+  tag: stable
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
+configMessage: "v1"
