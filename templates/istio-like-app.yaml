@@ -1,0 +1,46 @@
+# istiod 재현용 앱 — 기동 시점에 K8s API로 ConfigMap을 "하드코딩된 이름"으로 직접 조회한다.
+# 이 이름은 컨테이너 command 문자열 안에 있으므로 Spinnaker의 참조 재작성 대상이 아니다 (istiod 코드의 하드코딩과 동일한 조건).
+# → versioned 기본 배포에서는 ConfigMap이 -vNNN으로만 존재해 기동 실패(CrashLoopBackOff)한다.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-istio-like-app
+  labels:
+    app: {{ .Release.Name }}-istio-like-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-istio-like-app
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-istio-like-app
+    spec:
+      serviceAccountName: {{ .Release.Name }}-cm-reader
+      containers:
+        - name: app
+          image: bitnami/kubectl:latest
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              echo "[startup] istiod-style: loading config by hardcoded name via K8s API..."
+              if kubectl get configmap {{ .Release.Name }}-config -n "$POD_NAMESPACE" >/dev/null 2>&1; then
+                echo "[startup] config '{{ .Release.Name }}-config' loaded. app is running."
+                sleep infinity
+              else
+                echo "[startup] FATAL: configmap '{{ .Release.Name }}-config' not found via API — cannot start"
+                exit 1
+              fi
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
