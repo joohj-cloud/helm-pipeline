@@ -1,0 +1,4 @@
+{{ .Release.Name }} revision {{ .Release.Revision }} ({{ .Chart.Name }}-{{ .Chart.Version }}), message: {{ .Values.message }}
+
+  kubectl get deploy,svc,cm,secret,sa -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ .Release.Name }} 8080:{{ .Values.service.port }}

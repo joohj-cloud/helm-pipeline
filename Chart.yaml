@@ -1,6 +1,6 @@
 apiVersion: v2
-name: nginx-test-chart
-description: Test nginx application
+name: helm-e2e
+description: Helm 스테이지 E2E 테스트용 차트
 type: application
 version: 0.1.0
-appVersion: "1.0"
+appVersion: "stable"

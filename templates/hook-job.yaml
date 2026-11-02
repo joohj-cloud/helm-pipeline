@@ -1,0 +1,27 @@
+{{- /* 키/값 오버라이드는 기본이 --set-string이라 "false"도 참이 되므로 문자열로 비교함 */}}
+{{- $fail := eq (toString .Values.hook.fail) "true" }}
+{{- if or (gt (int .Values.hook.sleepSeconds) 0) $fail }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-hook
+  labels:
+    {{- include "helm-e2e.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: hook
+          image: {{ .Values.hook.image }}
+          command:
+            - sh
+            - -c
+            - sleep {{ int .Values.hook.sleepSeconds }}{{ if $fail }} && echo "hook.fail=true" && exit 1{{ end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end }}

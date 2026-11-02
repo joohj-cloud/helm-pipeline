@@ -1,0 +1,6 @@
+message: from-b
+env:
+  LOG_LEVEL: warn
+  FROM_B: "yes"
+features:
+  - b-1

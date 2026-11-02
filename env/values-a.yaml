@@ -1,0 +1,8 @@
+message: from-a
+replicaCount: 2
+env:
+  LOG_LEVEL: debug
+  FROM_A: "yes"
+features:
+  - a-1
+  - a-2

@@ -3,11 +3,12 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}
   labels:
-    app: {{ .Release.Name }}
+    {{- include "helm-e2e.labels" . | nindent 4 }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.service.type }}
   selector:
-    app: {{ .Release.Name }}
+    {{- include "helm-e2e.selectorLabels" . | nindent 4 }}
   ports:
-    - port: 80
-      targetPort: 80
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http

@@ -2,14 +2,44 @@ replicaCount: 1
 
 image:
   repository: nginx
+  # 없는 태그를 넣으면 이미지 받기 실패(ImagePullBackOff) 확인 가능
   tag: stable
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+# ConfigMap message와 index.html에 표시됨
+message: chart-default
+
+# 컨테이너 환경 변수. 맵이라 여러 Values 파일의 키가 합쳐짐
+env:
+  LOG_LEVEL: info
+
+# 목록은 합쳐지지 않고 마지막에 적용된 값으로 통째 바뀜. 키/값으로는 넣을 수 없어 Values 파일로만 넣음
+features: []
+
+# readinessProbe initialDelaySeconds로 쓰여 Pod 준비를 늦춤
+readyDelaySeconds: 0
+
+# sleepSeconds > 0 또는 fail이 true일 때만 pre-install·pre-upgrade hook Job을 만듦
+hook:
+  sleepSeconds: 0
+  fail: false
+  image: busybox:1.36
+
+# 값이 있으면 이 문구로 렌더링 실패
+failMessage: ""
+
+# 더미 값. Dry Run·Helm 출력에 노출되는지 검색할 때 씀
+secret:
+  E2E_SECRET: e2e-dummy-secret-value
 
 resources:
   requests:
-    cpu: 50m
-    memory: 32Mi
+    cpu: 10m
+    memory: 16Mi
   limits:
     cpu: 100m
-    memory: 64Mi
-
-configMessage: "v1"
+    memory: 128Mi

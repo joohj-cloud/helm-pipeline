@@ -3,6 +3,11 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-config
   labels:
-    app: {{ .Release.Name }}
+    {{- include "helm-e2e.labels" . | nindent 4 }}
 data:
-  MESSAGE: {{ .Values.configMessage | quote }}
+  message: {{ .Values.message | quote }}
+  features: {{ join "," .Values.features | quote }}
+  index.html: |
+    <h1>{{ .Values.message }}</h1>
+    <p>{{ .Release.Name }} · revision {{ .Release.Revision }} · {{ .Chart.Name }}-{{ .Chart.Version }}</p>
+    <ul>{{ range .Values.features }}<li>{{ . }}</li>{{ end }}</ul>
